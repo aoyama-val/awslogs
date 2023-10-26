@@ -15,6 +15,7 @@ import jmespath
 from termcolor import colored
 from dateutil.parser import parse
 from dateutil.tz import tzutc
+from zoneinfo import ZoneInfo
 
 from . import exceptions
 
@@ -25,11 +26,15 @@ COLOR_ENABLED = {
     'auto': sys.stdout.isatty(),
 }
 
+TZ = 'Asia/Tokyo'
 
 def milis2iso(milis):
     res = datetime.utcfromtimestamp(milis/1000.0).isoformat()
     return (res + ".000")[:23] + 'Z'
 
+def iso8601tz(dt, tzname):
+    tz = ZoneInfo(key=tzname)
+    return dt.astimezone(tz).isoformat()
 
 def boto3_client(aws_profile, aws_access_key_id, aws_secret_access_key, aws_session_token,
                  aws_region, aws_endpoint_url):
@@ -158,12 +163,13 @@ class AWSLogs(object):
 
             args = ['awslogs', 'get', self.log_group_name]
             if self.start:
-                args.append(f'--start \'{milis2iso(self.start)}\'')
+                args.append(f'--start \'{iso8601tz(datetime.fromtimestamp(self.start / 1000.0), TZ)}\'')
             if self.end:
-                args.append(f'--end \'{milis2iso(self.end)}\'')
+                args.append(f'--end \'{iso8601tz(datetime.fromtimestamp(self.end / 1000.0), TZ)}\'')
             if self.filter_pattern:
                 args.append(f'--filter-pattern \'{self.filter_pattern}\'')
-            print(' '.join(args))
+            print('# ' + ' '.join(args))
+            print(f'# {self.start} - {self.end}')
 
             while True:
                 response = self.client.filter_log_events(**kwargs)
@@ -305,16 +311,7 @@ class AWSLogs(object):
             try:
                 now = datetime.now().replace(second=0, microsecond=0)
                 date = parse(datetime_text, default=now)
-                if date.tzinfo is None:
-                    date = parse(datetime_text + ' +09:00', default=now) # FIXME: +09:00固定でなく$TZから取得したい
             except ValueError:
                 raise exceptions.UnknownDateError(datetime_text)
 
-        if date.tzinfo:
-            if date.utcoffset != 0:
-                date = date.astimezone(tzutc())
-            date = date.replace(tzinfo=None)
-
-        #print(date, date.tzinfo)
-
-        return int(total_seconds(date - datetime(1970, 1, 1))) * 1000
+        return int(date.timestamp() * 1000)
