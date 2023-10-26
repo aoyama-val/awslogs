@@ -20,9 +20,32 @@ One of the most powerful features is to query events from several streams and co
 Changes
 -------
 
+インストール:
+
+```
+$ python3 setup.py install
+```
+
+AND検索:
+
+```
+$ awslogs get /var/log/syslog --start '10/23 10:00' --end '10/23 11:00' --filter-pattern 'GET "/users" Error'
+```
+
+OR検索:
+
 ```
 $ awslogs get /var/log/syslog --start '10/23 10:00' --end '10/23 11:00' --or '00000000-0000-4000-0000-000000000000 11111111-1111-4111-1111-111111111111'
 ```
+
+時間指定:
+
+- タイムゾーンはJSTで指定する
+- `1m` 1分前
+- `1h` 1時間前
+- `14:00` 今日の14:00
+- `10/23 10:00` 10月23日の10:00
+
 
 
 Features
