@@ -97,7 +97,6 @@ class AWSLogs(object):
         )
         if self.or_keywords is not None:
             self.filter_pattern = ' '.join([f'?"{k}"' for k in self.or_keywords.split()])
-            print(self.filter_pattern)
 
     def _get_streams_from_pattern(self, group, pattern):
         """Returns streams in ``group`` matching ``pattern``."""
@@ -156,6 +155,15 @@ class AWSLogs(object):
 
             if self.filter_pattern:
                 kwargs['filterPattern'] = self.filter_pattern
+
+            args = ['awslogs', 'get', self.log_group_name]
+            if self.start:
+                args.append(f'--start \'{milis2iso(self.start)}\'')
+            if self.end:
+                args.append(f'--end \'{milis2iso(self.end)}\'')
+            if self.filter_pattern:
+                args.append(f'--filter-pattern \'{self.filter_pattern}\'')
+            print(' '.join(args))
 
             while True:
                 response = self.client.filter_log_events(**kwargs)
