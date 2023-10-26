@@ -26,15 +26,12 @@ COLOR_ENABLED = {
     'auto': sys.stdout.isatty(),
 }
 
-TZ = 'Asia/Tokyo'
-
 def milis2iso(milis):
     res = datetime.utcfromtimestamp(milis/1000.0).isoformat()
     return (res + ".000")[:23] + 'Z'
 
-def iso8601tz(dt, tzname):
-    tz = ZoneInfo(key=tzname)
-    return dt.astimezone(tz).isoformat()
+def iso8601tz(dt):
+    return dt.astimezone().isoformat()
 
 def boto3_client(aws_profile, aws_access_key_id, aws_secret_access_key, aws_session_token,
                  aws_region, aws_endpoint_url):
@@ -163,9 +160,9 @@ class AWSLogs(object):
 
             args = ['awslogs', 'get', self.log_group_name]
             if self.start:
-                args.append(f'--start \'{iso8601tz(datetime.fromtimestamp(self.start / 1000.0), TZ)}\'')
+                args.append(f'--start \'{iso8601tz(datetime.fromtimestamp(self.start / 1000.0))}\'')
             if self.end:
-                args.append(f'--end \'{iso8601tz(datetime.fromtimestamp(self.end / 1000.0), TZ)}\'')
+                args.append(f'--end \'{iso8601tz(datetime.fromtimestamp(self.end / 1000.0))}\'')
             if self.filter_pattern:
                 args.append(f'--filter-pattern \'{self.filter_pattern}\'')
             print('# ' + ' '.join(args))
