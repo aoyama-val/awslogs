@@ -213,7 +213,7 @@ class AWSLogs(object):
                     message = self.query_expression.search(parsed)
                     if not isinstance(message, str):
                         message = json.dumps(message)
-                output.append(message.rstrip())
+                output.append(message.rstrip().replace('\n', '\r')) # 改行を^Mに置換
 
                 print(' '.join(output))
                 try:
