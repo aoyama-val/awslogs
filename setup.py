@@ -11,7 +11,7 @@ install_requires = [
 
 setup(
     name='awslogs',
-    version='0.14.0',
+    version='0.15.0',
     url='https://github.com/jorgebastida/awslogs',
     license='BSD',
     author='Jorge Bastida',
@@ -21,7 +21,7 @@ setup(
     keywords="aws logs cloudwatch",
     packages=find_packages(),
     platforms='any',
-    python_requires=">=3.5.*",
+    python_requires=">=3.5.0",
     install_requires=install_requires,
     test_suite='tests',
     classifiers=[
