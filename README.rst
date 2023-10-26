@@ -17,6 +17,13 @@ One of the most powerful features is to query events from several streams and co
 
     $ awslogs get /var/log/syslog ip-10-1.* --start='2h ago' | grep ERROR
 
+Changes
+-------
+
+```
+$ awslogs get /var/log/syslog --start '10/23 10:00' --end '10/23 11:00' --or '00000000-0000-4000-0000-000000000000 11111111-1111-4111-1111-111111111111'
+```
+
 
 Features
 --------
