@@ -94,6 +94,10 @@ def main(argv=None):
                                   "use for filtering the response. If not "
                                   "provided, all the events are matched."))
 
+    get_parser.add_argument("--or",
+                            dest='or_keywords',
+                            help="OR条件で検索するキーワード（スペース区切り）。--filter-patternは無効になる")
+
     get_parser.add_argument("-w",
                             "--watch",
                             action='store_true',

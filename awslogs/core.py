@@ -72,6 +72,7 @@ class AWSLogs(object):
         self.log_group_name = kwargs.get('log_group_name')
         self.log_stream_name = kwargs.get('log_stream_name')
         self.filter_pattern = kwargs.get('filter_pattern')
+        self.or_keywords = kwargs.get('or_keywords')
         self.watch = kwargs.get('watch')
         self.watch_interval = kwargs.get('watch_interval')
         self.color_enabled = COLOR_ENABLED.get(kwargs.get('color'), True)
@@ -94,6 +95,9 @@ class AWSLogs(object):
             self.aws_region,
             self.aws_endpoint_url
         )
+        if self.or_keywords is not None:
+            self.filter_pattern = ' '.join([f'?"{k}"' for k in self.or_keywords.split()])
+            print(self.filter_pattern)
 
     def _get_streams_from_pattern(self, group, pattern):
         """Returns streams in ``group`` matching ``pattern``."""
@@ -291,7 +295,10 @@ class AWSLogs(object):
             date = datetime.utcnow() + timedelta(seconds=unit * amount * -1)
         else:
             try:
-                date = parse(datetime_text)
+                now = datetime.now().replace(second=0, microsecond=0)
+                date = parse(datetime_text, default=now)
+                if date.tzinfo is None:
+                    date = parse(datetime_text + ' +09:00', default=now) # FIXME: +09:00固定でなく$TZから取得したい
             except ValueError:
                 raise exceptions.UnknownDateError(datetime_text)
 
@@ -299,5 +306,7 @@ class AWSLogs(object):
             if date.utcoffset != 0:
                 date = date.astimezone(tzutc())
             date = date.replace(tzinfo=None)
+
+        #print(date, date.tzinfo)
 
         return int(total_seconds(date - datetime(1970, 1, 1))) * 1000
